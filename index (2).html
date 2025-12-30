@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Digital | Déjà-vu Cambrils</title>
+    <style>
+        :root {
+            --gold: #d4af37;
+            --bg-deep: #05050a;
+            --overlay: linear-gradient(135deg, #0a0f23 0%, #1a0828 50%, #050a15 100%);
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(212, 175, 55, 0.2);
+            --text: #e5e7eb;
+        }
+
+        /* TIPOGRAFÍA DE SISTEMA - 100% OFFLINE */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* --- FONDO ATMOSFÉRICO CSS PURO --- */
+        .atm-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: var(--overlay);
+        }
+
+        .smoke-particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(50px);
+            pointer-events: none;
+        }
+
+        @keyframes float-smoke {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+            50% { transform: translate(10%, 15%) scale(1.3); opacity: 0.5; }
+            100% { transform: translate(-5%, 25%) scale(1); opacity: 0.2; }
+        }
+
+        /* --- DECORACIONES SVG --- */
+        .svg-decor {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            opacity: 0.04;
+            fill: none;
+            stroke: var(--gold);
+            stroke-width: 1.5;
+            pointer-events: none;
+            animation: svg-float 12s infinite alternate ease-in-out;
+        }
+
+        @keyframes svg-float {
+            from { transform: translateY(0) rotate(0deg); }
+            to { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        /* --- LAYOUT --- */
+        header {
+            text-align: center;
+            padding: 3rem 1.5rem 1rem;
+        }
+
+        .logo-placeholder {
+            width: 90px;
+            height: 90px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            margin: 0 auto 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.6);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+        }
+
+        .logo-placeholder span {
+            font-size: 1.8rem;
+            color: var(--gold);
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.2rem; letter-spacing: -0.5px; }
+        h1 span { color: var(--gold); font-style: italic; font-weight: 400; }
+        .tagline { text-transform: uppercase; letter-spacing: 0.35em; font-size: 0.6rem; color: #666; margin-bottom: 2rem; }
+        
+        .indicator-container {
+            margin-bottom: 1rem;
+        }
+
+        .indicator { 
+            display: inline-block; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+            padding: 0.5rem 2rem; font-size: 1rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);
+            min-width: 280px;
+        }
+
+        /* --- VISTAS --- */
+        .view {
+            display: none;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem 1.2rem 10rem;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        section { margin-bottom: 3.5rem; }
+        .cat-title { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+        .cat-title h2 { font-size: 1.6rem; color: var(--gold); font-weight: 300; font-style: italic; white-space: nowrap; }
+        .line { height: 1px; flex-grow: 1; background: linear-gradient(to right, var(--border), transparent); }
+
+        /* --- CARDS --- */
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 1.4rem;
+            border-radius: 16px;
+            margin-bottom: 1.2rem;
+            transition: 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .card:hover { border-color: var(--gold); background: rgba(255,255,255,0.06); }
+        .card.highlight { border-left: 4px solid var(--gold); }
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.3rem; }
+        .card h3 { font-size: 1.2rem; color: #fff; font-weight: 600; }
+        .price { color: var(--gold); font-weight: 700; font-size: 1.1rem; }
+        .card p { font-size: 0.85rem; color: #aaa; font-style: italic; font-weight: 300; }
+        .badge {
+            font-size: 0.55rem; text-transform: uppercase; background: rgba(212,175,55,0.12);
+            color: var(--gold); padding: 2px 8px; border-radius: 4px; margin-top: 0.6rem; display: inline-block; font-weight: 700;
+        }
+
+        /* --- NAV --- */
+        .bottom-nav {
+            position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+            background: rgba(10,10,20,0.95); backdrop-filter: blur(20px);
+            padding: 0.4rem; border-radius: 60px; display: flex; gap: 0.4rem;
+            border: 1px solid rgba(255,255,255,0.1); z-index: 100;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+        .nav-btn {
+            padding: 0.9rem 2rem; border-radius: 50px; border: none; background: transparent;
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+            transition: 0.4s; color: #777; cursor: pointer;
+        }
+        .nav-btn.active { background: var(--gold); color: #000; box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3); }
+
+        footer { text-align: center; color: #444; font-size: 0.7rem; padding: 2rem 1.5rem; }
+    </style>
+</head>
+<body>
+    <div class="atm-bg">
+        <div class="smoke-particle" style="width:500px; height:500px; top:-10%; left:-10%; animation: float-smoke 25s infinite;"></div>
+        <div class="smoke-particle" style="width:400px; height:400px; bottom:5%; right:-5%; animation: float-smoke 30s infinite -5s;"></div>
+        <div class="smoke-particle" style="width:350px; height:350px; top:40%; left:45%; animation: float-smoke 20s infinite -12s;"></div>
+        
+        <!-- SVG COCTELERA -->
+        <svg viewBox="0 0 100 100" class="svg-decor" style="top:5%; right:5%;">
+            <path d="M35 30 L65 30 L60 85 L40 85 Z M42 20 L58 20 L58 30 L42 30 Z" />
+        </svg>
+        
+        <!-- SVG COPA -->
+        <svg viewBox="0 0 100 100" class="svg-decor" style="bottom:15%; left:5%; animation-delay: -4s;">
+            <path d="M25 30 L75 30 L50 60 Z M50 60 L50 85 M35 85 L65 85" />
+        </svg>
+    </div>
+
+    <header>
+        <div class="logo-placeholder"><span>DV</span></div>
+        <h1>Déjà-vu <span>Lounge</span></h1>
+        <p class="tagline">Cambrils • Puerto</p>
+        <div class="indicator-container">
+            <h2 class="indicator" id="page-title">Carta de Shishas</h2>
+        </div>
+    </header>
+
+    <!-- VISTA SHISHAS -->
+    <main id="shishas-view" class="view active">
+        <section>
+            <div class="cat-title">
+                <h2>Tradición</h2>
+                <div class="line"></div>
+            </div>
+            <div class="card">
+                <div class="card-top">
+                    <h3>Doble Manzana</h3>
+                    <span class="price">15€</span>
+                </div>
+                <p>El aroma legendario que define la historia del Shisha Lounge.</p>
+            </div>
+            <div class="card">
+                <div class="card-top">
+                    <h3>Menta Extreme</h3>
+                    <span class="price">15€</span>
+                </div>
+                <p>Frescura absoluta para despejar los sentidos frente al mar.</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="cat-title">
+                <h2>Exóticas</h2>
+                <div class="line"></div>
+            </div>
+            <div class="card highlight">
+                <div class="card-top">
+                    <h3>Blue Mist</h3>
+                    <span class="price">18,50€</span>
+                </div>
+                <p>Arándanos dulces con un toque místico de frescor cítrico.</p>
+                <span class="badge">Top Ventas</span>
+            </div>
+            <div class="card">
+                <div class="card-top">
+                    <h3>Love 66</h3>
+                    <span class="price">19€</span>
+                </div>
+                <p>Mezcla vibrante de sandía, melón y frutas de la pasión.</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="cat-title">
+                <h2>Premium Experience</h2>
+                <div class="line"></div>
+            </div>
+            <div class="card highlight">
+                <div class="card-top">
+                    <h3>Déjà-vu Gold VIP</h3>
+                    <span class="price">28€</span>
+                </div>
+                <p>Base de zumo natural, cazoleta de fruta fresca y efecto humo seco.</p>
+                <span class="badge">Recomendado</span>
+            </div>
+        </section>
+        
+        <footer>
+            <p style="margin-bottom:0.5rem; letter-spacing:1px; font-weight:600; color:#666;">+18 ONLY • CONSUMO RESPONSABLE</p>
+            <p>Déjà-vu Chillout Lounge Cambrils &copy; 2024</p>
+        </footer>
+    </main>
+
+    <!-- VISTA BEBIDAS -->
+    <main id="bebidas-view" class="view">
+        <section>
+            <div class="cat-title">
+                <h2>House Mixology</h2>
+                <div class="line"></div>
+            </div>
+            <div class="card highlight">
+                <div class="card-top">
+                    <h3>Cambrils Sunset</h3>
+                    <span class="price">14€</span>
+                </div>
+                <p>Vodka Premium, maracuyá artesano, vainilla y un toque de Cava Brut.</p>
+                <span class="badge">Especialidad</span>
+            </div>
+            <div class="card">
+                <div class="card-top">
+                    <h3>Déjà-vu Mule</h3>
+                    <span class="price">13€</span>
+                </div>
+                <p>Ginebra de autor, ginger beer picante, lima y pepino macerado.</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="cat-title">
+                <h2>Gin & Tonics</h2>
+                <div class="line"></div>
+            </div>
+            <div class="card">
+                <div class="card-top">
+                    <h3>Hendrick's Journey</h3>
+                    <span class="price">14,50€</span>
+                </div>
+                <p>Pétalos de rosa y pepino fresco con tónica botánica.</p>
+            </div>
+            <div class="card">
+                <div class="card-top">
+                    <h3>G'Vine Floraison</h3>
+                    <span class="price">16€</span>
+                </div>
+                <p>Uva verde y tónica premium neutra. Sofisticación pura.</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="cat-title">
+                <h2>Zero Proof</h2>
+                <div class="line"></div>
+            </div>
+            <div class="card">
+                <div class="card-top">
+                    <h3>Berry Chill (Sin Alcohol)</h3>
+                    <span class="price">9,50€</span>
+                </div>
+                <p>Frutos del bosque, lima exprimida y soda refrescante.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p style="margin-bottom:0.5rem; letter-spacing:1px; font-weight:600; color:#666;">DISFRUTA CON MODERACIÓN • +18</p>
+            <p>Déjà-vu Chillout Lounge Cambrils &copy; 2024</p>
+        </footer>
+    </main>
+
+    <nav class="bottom-nav">
+        <button onclick="switchView('shishas')" id="btn-shishas" class="nav-btn active">Shishas</button>
+        <button onclick="switchView('bebidas')" id="btn-bebidas" class="nav-btn">Bebidas</button>
+    </nav>
+
+    <script>
+        function switchView(viewName) {
+            // Actualizar vistas
+            const shishasView = document.getElementById('shishas-view');
+            const bebidasView = document.getElementById('bebidas-view');
+            const title = document.getElementById('page-title');
+            
+            // Actualizar botones
+            const btnShishas = document.getElementById('btn-shishas');
+            const btnBebidas = document.getElementById('btn-bebidas');
+
+            if (viewName === 'shishas') {
+                shishasView.classList.add('active');
+                bebidasView.classList.remove('active');
+                btnShishas.classList.add('active');
+                btnBebidas.classList.remove('active');
+                title.innerText = "Carta de Shishas";
+            } else {
+                shishasView.classList.remove('active');
+                bebidasView.classList.add('active');
+                btnShishas.classList.remove('active');
+                btnBebidas.classList.add('active');
+                title.innerText = "Carta de Bebidas";
+            }
+            
+            // Hacer scroll hacia arriba al cambiar
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
